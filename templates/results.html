@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validation Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Validation Results for {{ filename }}</h1>
+        {% if errors %}
+        <div class="error-section">
+            <h2>Errors Found:</h2>
+            <ul>
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <div class="success">
+            <h2>No errors found! File is valid.</h2>
+        </div>
+        {% endif %}
+
+        <div class="download-links">
+            <a href="{{ url_for('download_file', filename='Pledge_Import_' + today_date + '.csv') }}">
+                <button>Download Cleaned Data</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
