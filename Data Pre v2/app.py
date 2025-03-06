@@ -22,7 +22,7 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default-secret-key')
 app.config.update({
     'UPLOAD_FOLDER': 'uploads/',
     'ALLOWED_EXTENSIONS': {'xls', 'xlsx'},
-    'MAX_CONTENT_LENGTH': 16 * 1024 * 1024,  # 16MB
+    'MAX_CONTENT_LENGTH': 16 * 1024 * 1024,
 })
 
 # Database configuration
@@ -64,7 +64,8 @@ class DataValidator:
     @staticmethod
     def validate_iban_bic(df):
         errors = []
-        iban_pattern = re.compile(r'^IE[0-9A-Z]{22}$', re.IGNORECASE)
+        # Updated IBAN pattern for Irish IBANs (22 characters after IE)
+        iban_pattern = re.compile(r'^IE\d{2}[A-Z0-9]{4}\d{14}$', re.IGNORECASE)
         bic_pattern = re.compile(r'^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$')
 
         for idx, row in df.iterrows():
@@ -87,21 +88,20 @@ class DataValidator:
                     'field': 'BIC',
                     'message': f'Invalid BIC format: {bic}'
                 })
-                
         return errors
 
     @staticmethod
     def validate_districts(df):
         errors = []
         try:
-            conn_str = f'DRIVER={{ODBC Driver 18 for SQL Server}};' \
+            conn_str = f'DRIVER={{ODBC Driver 17 for SQL Server}};' \
                        f'SERVER={SERVER};DATABASE={DATABASE};Trusted_Connection=yes;Encrypt=no'
             with pyodbc.connect(conn_str) as conn:
                 query = "SELECT district_name FROM CRM_MSCRM.[dbo].[ext_BI_FR_DIM_DIST]"
                 df_districts = pd.read_sql(query, conn)
                 
-            valid_districts = df_districts['district_name'].tolist()
-            invalid = df[~df['District'].isin(valid_districts)]['District'].dropna().unique()
+            valid_districts = df_districts['district_name'].str.strip().str.upper().tolist()
+            invalid = df[~df['District'].str.strip().str.upper().isin(valid_districts)]['District'].dropna().unique()
             
             if len(invalid) > 0:
                 errors.append({
@@ -121,18 +121,23 @@ class DataValidator:
     def validate_dates(df):
         errors = []
         date_fields = ['Sign up date', 'Date verified by agency', 'DOB', 'Start Date']
-        date_pattern = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 
         for field in date_fields:
             for idx, value in df[field].items():
-                if pd.notna(value):
-                    if not date_pattern.match(str(value)):
-                        errors.append({
-                            'type': 'Validation',
-                            'row': idx + 2,
-                            'field': field,
-                            'message': f'Invalid date format: {value} (expected YYYY-MM-DD)'
-                        })
+                if pd.isna(value) or value == '':
+                    errors.append({
+                        'type': 'Validation',
+                        'row': idx + 2,
+                        'field': field,
+                        'message': f'Missing date value'
+                    })
+                elif not isinstance(value, str) or not re.match(r'\d{4}-\d{2}-\d{2}', str(value)):
+                    errors.append({
+                        'type': 'Validation',
+                        'row': idx + 2,
+                        'field': field,
+                        'message': f'Invalid date format: {value} (expected YYYY-MM-DD)'
+                    })
                         
         return errors
 
@@ -157,20 +162,45 @@ class DataValidator:
     @staticmethod
     def validate_eircode(df):
         errors = []
-        eircode_pattern = re.compile(r'^[A-Z0-9]{7}$')
+        # Updated Eircode pattern with space
+        eircode_pattern = re.compile(r'^[A-Z0-9]{3} [A-Z0-9]{4}$', re.IGNORECASE)
 
         for idx, value in df['Eircode'].items():
             if pd.notna(value):
-                code = str(value).replace(' ', '').upper()
+                code = str(value).strip()
                 if not eircode_pattern.match(code):
                     errors.append({
                         'type': 'Validation',
                         'row': idx + 2,
                         'field': 'Eircode',
-                        'message': f'Invalid Eircode format: {value}'
+                        'message': f'Invalid Eircode format: {value} (expected format: A11 AA11)'
                     })
                     
         return errors
+
+def clean_data(df):
+    """Preprocess and clean data before validation"""
+    try:
+        # Convert dates with dayfirst=True
+        date_fields = ['Sign up date', 'Date verified by agency', 'DOB', 'Start Date']
+        for field in date_fields:
+            df[field] = pd.to_datetime(df[field], dayfirst=True, errors='coerce').dt.strftime('%Y-%m-%d')
+        
+        # Convert opt-in values
+        optin_fields = ['Post Opt-In', 'Newsletter Opt-In', 'Email Opt-In', 'Phone Opt-In']
+        df[optin_fields] = df[optin_fields].replace({'1': 'Yes', '0': 'No'})
+        
+        # Clean Eircode formatting
+        df['Eircode'] = df['Eircode'].str.replace(r'\s+', ' ', regex=True).str.strip().str.upper()
+        
+        # Clean all string columns
+        str_cols = df.select_dtypes(include='object').columns
+        df[str_cols] = df[str_cols].apply(lambda x: x.str.strip())
+        
+        return df
+    except Exception as e:
+        logger.error(f'Data cleaning error: {str(e)}')
+        raise
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -228,9 +258,9 @@ def process_file(file_path, filename, password):
             file_data.seek(0)
             df = pd.read_excel(file_data, engine='xlrd', dtype={'Start Date': str})
 
-        # Clean data
+        # Clean and preprocess data
+        df = clean_data(df)
         df.columns = df.columns.str.strip()
-        df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
         # Perform validations
         validator = DataValidator()
