@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<p> V 1.6.1 Dev Version </p>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Validation Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Data Validation Portal</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" action="/upload">
+                    <div class="mb-3">
+                        <label class="form-label">Excel File</label>
+                        <input type="file" class="form-control" name="file" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">File Password (if encrypted)</label>
+                        <input type="password" class="form-control" name="password"
+                               placeholder="Optional password for encrypted files">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Validate File
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+	
+
+<h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">&nbsp;</h3>
+<h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">&nbsp;</h3>
+<h2>Changelog</h2>
+<h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">&nbsp;</h3>
+<h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">Version 1.6.1 (13.03.2025)</h3>
+
+<h4>Added:</h4>
+<ul>
+<li><strong>Cron Job </strong>: Implemented a cron job to automatically clear temporary files from the <code class="codespan cursor-pointer z-[9] relative">uploads/</code> folder if any are left behind.</li>
+<li><strong>Re-verification Logic </strong>: Added logic to re-validate records after corrections are applied, ensuring updated data meets validation rules</li>
+</ul>
+<h4>Fixed:</h4>
+<ul>
+<li><strong>Temp File Issues </strong>: Resolved memory leak issues caused by lingering temporary files.</li>
+<li><strong data-spm-anchor-id="a2ty_o01.29997173.0.i62.189ec921vsCNRO">Validation Rules </strong>: Removed the "Columns are not in the correct order" validation to simplify structural checks.</li>
+</ul>
+<hr />
+<h3>Version 1.5.1 (12.03.2025)</h3>
+<h4>Fixed:</h4>
+<ul>
+<li><strong>Structure Mapping Issues </strong>: Corrected issues with structural validation where column mappings were inconsistent.</li>
+<li data-spm-anchor-id="a2ty_o01.29997173.0.i66.189ec921vsCNRO"><strong>Ignore Button Overlapping </strong>: Fixed UI issues where the "Ignore" button was overlapping with other elements on the results page.</li>
+</ul>
+	
+</body>
+</html>

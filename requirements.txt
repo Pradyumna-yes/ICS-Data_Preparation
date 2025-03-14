@@ -1,0 +1,8 @@
+Flask
+pandas
+numpy
+msoffcrypto-tool
+pyodbc
+python-dotenv
+openpyxl
+xlrd
