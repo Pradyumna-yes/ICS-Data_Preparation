@@ -385,6 +385,10 @@ def error():
     message = request.args.get('message', 'An unknown error occurred')
     return render_template('error.html', message=message)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 8000)), debug=os.getenv('FLASK_DEBUG', False))
+    app.run(
+        host='0.0.0.0',
+        port=int(os.getenv('PORT', 8000)),  # Use dynamic PORT
+        debug=os.getenv('FLASK_DEBUG', False)
+    )
