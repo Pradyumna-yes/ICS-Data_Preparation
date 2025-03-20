@@ -3,7 +3,7 @@ import re
 import logging
 import pandas as pd
 import msoffcrypto
-import pyodbc
+#import pyodbc
 import io
 import uuid
 from datetime import datetime
