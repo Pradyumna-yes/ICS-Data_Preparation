@@ -48,6 +48,38 @@
 <h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">&nbsp;</h3>
 <h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">&nbsp;</h3>
 <h2>Changelog</h2>
+
+<h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">&nbsp;</h3>
+<h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">Version 1.6.2 (20.03.2025)</h3>
+
+<h4>Added:</h4>
+<ul>
+<li><strong>Deployment Stability</strong>: Added <code>Procfile</code> to ensure proper Gunicorn configuration for production environments.</li>
+<li><strong>ODBC Dependency Management</strong>: Included ODBC driver installation steps in deployment to resolve <code>libodbc.so.2</code> errors.</li>
+</ul>
+
+<h4>Fixed:</h4>
+<ul>
+<li><strong>Upload Directory Issue</strong>: Ensured the <code>uploads/</code> directory is dynamically created at app startup to prevent missing file errors.</li>
+<li><strong>Database Connection</strong>: Updated SQL Server connection to use <code>SQL authentication</code> instead of <code>Trusted_Connection</code> for cross-platform compatibility.</li>
+<li><strong>File Cleanup</strong>: Fixed race condition in temporary file deletion to avoid leftover files in the <code>uploads/</code> folder.</li>
+<li><strong>Environment Variables</strong>: Added explicit documentation for required variables (<code>SQL_USER</code>, <code>SQL_PASSWORD</code>, etc.) in deployment configurations.</li>
+</ul>
+
+<h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">&nbsp;</h3>
+<h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">Version 1.6.1 (13.03.2025)</h3>
+
+<h4>Added:</h4>
+<ul>
+<li><strong>Cron Job</strong>: Implemented a cron job to automatically clear temporary files from the <code class="codespan cursor-pointer z-[9] relative">uploads/</code> folder if any are left behind.</li>
+<li><strong>Re-verification Logic</strong>: Added logic to re-validate records after corrections are applied, ensuring updated data meets validation rules.</li>
+</ul>
+<h4>Fixed:</h4>
+<ul>
+<li><strong>Temp File Issues</strong>: Resolved memory leak issues caused by lingering temporary files.</li>
+<li><strong>Validation Rules</strong>: Removed the "Columns are not in the correct order" validation to simplify structural checks.</li>
+</ul>
+
 <h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">&nbsp;</h3>
 <h3 data-spm-anchor-id="a2ty_o01.29997173.0.i61.189ec921vsCNRO">Version 1.6.1 (13.03.2025)</h3>
 
