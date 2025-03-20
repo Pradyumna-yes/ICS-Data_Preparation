@@ -388,7 +388,7 @@ def error():
 if __name__ == "__main__":
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     app.run(
-        host='0.0.0.0',
-        port=int(os.getenv('PORT', 8000)),  # Use dynamic PORT
+        host='0.0.0.0',  # ✅ Must be set to 0.0.0.0 for external access
+        port=int(os.getenv('PORT', 8000)),
         debug=os.getenv('FLASK_DEBUG', False)
     )
