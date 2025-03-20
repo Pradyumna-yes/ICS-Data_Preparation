@@ -387,4 +387,4 @@ def error():
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    app.run(debug=os.getenv('FLASK_DEBUG', False))
+    app.run(host='0.0.0.0', port=8000, debug=os.getenv('FLASK_DEBUG', False))
